@@ -1,0 +1,14 @@
+{
+  "title": "Tên phim",
+  "provider": "file",
+  "audio": "audio/full.mp3",
+  "voice_id": "VOICE_ID_ELEVENLABS",
+  "model": "eleven_v3",
+  "voice_settings": { "stability": 0.6, "similarity_boost": 0.75, "style": 0, "speed": 1.0 },
+  "scenes": [
+    { "id": "film", "lines": [
+      "{l1}Câu mở đầu, có {cue_mot}chữ mà hình phải phản ứng.",
+      "{l2}Câu thứ hai: số viết bằng chữ số, ví dụ {cue_hai}2 triệu hay 10%."
+    ] }
+  ]
+}

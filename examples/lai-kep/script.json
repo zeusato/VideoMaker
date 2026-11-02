@@ -1,0 +1,20 @@
+{
+  "title": "Lãi kép",
+  "provider": "file",
+  "audio": "audio/full.mp3",
+  "fps": 24,
+  "lead": 0.6,
+  "tail": 2.5,
+  "scenes": [
+    { "id": "film", "lines": [
+      "{l1}Hai người, cùng góp {monthly}2 triệu mỗi tháng.",
+      "{l2}Mỗi {unit}đồng xu là 20 triệu. {wood}Gỗ là tiền tự góp, {copper}đồng đỏ là tiền lãi.",
+      "{l3}An bắt đầu năm {an_start}25 tuổi. {binh_wait}Bình đợi đến {binh_start}35.",
+      "{l4}Lợi nhuận giả định {rate}10% một năm. Lúc đầu, {early}lãi gần như không thấy.",
+      "{l5}Nhưng {turn}lãi lại sinh ra lãi.",
+      "{l6}{age55}55 tuổi. An có {an_total}4,5 tỷ. Bình, {binh_total}1,5 tỷ.",
+      "{l7}Phần {wood_gap}tiền tự góp, chỉ chênh {gap240}240 triệu.",
+      "{l8}Thứ lãi kép cần nhất không phải là tiền. Mà là {time}thời gian."
+    ] }
+  ]
+}

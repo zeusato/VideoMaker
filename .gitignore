@@ -1,0 +1,21 @@
+# secrets
+.env
+.env.*
+
+# generated or heavy, per film project
+**/audio/
+**/voice/
+**/out/
+**/stills/
+**/review/
+**/captions/
+**/fonts/
+**/fonts.css
+**/data.js
+**/events.json
+**/narration.mp3
+*.mp4
+*.wav
+*.mp3
+node_modules/
+.venv/
