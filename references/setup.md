@@ -73,7 +73,9 @@ sh "$SKILL/scripts/setup.sh" assets vcsl vsco2ce        # nhạc cụ mà STYLE.
 | `freepats` | glass harp | 416 MB |
 | `karoryfer`, `salamander` | (xem `$LIB/core/audio/INSTRUMENTS.md`) | 78 MB, 229 MB |
 
-`sampler.py` của thư viện báo đúng gói còn thiếu khi một nhạc cụ không có. Mỗi gói cần trống khoảng gấp đôi dung lượng của nó khi giải nén. Tải dở thì chạy lại cùng lệnh, nó tải tiếp.
+`sampler.py` của thư viện báo đúng gói còn thiếu khi một nhạc cụ không có. Mỗi gói cần trống khoảng gấp đôi dung lượng của nó khi giải nén. Tải dở thì chạy lại cùng lệnh, nó tải tiếp. Gói đã giải nén thì được bỏ qua.
+
+**Tải song song:** từ Việt Nam, GitHub Releases chỉ cho khoảng 25–65 KB/s trên mỗi kết nối, trong khi mạng thường nhanh hơn nhiều; đo thật, 1 GB nhạc cụ sẽ mất hàng chục giờ. Vì vậy `setup.sh assets` tải mỗi gói thành 24 đoạn song song (đổi bằng `PARALLEL=…`), ghép vào `.release/<gói>.download`, rồi để `fetch.sh` của thư viện kiểm sha256 và giải nén. 16 kết nối đo được khoảng 1,5 MB/s.
 
 **4. Key ElevenLabs:** người dùng tạo `<workspace>/.env` với dòng `ELEVENLABS_API_KEY=…`. Key cần quyền `text_to_speech` và `forced_alignment`. Không đọc hay in nội dung file này; chỉ kiểm tra là file có tồn tại.
 

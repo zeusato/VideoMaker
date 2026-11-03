@@ -80,11 +80,52 @@ deps() {   # the library's setup.sh deps (npm, headless browser, .venv packages)
     cat "$LIB/package.json" "$LIB/package-lock.json" | cksum | cut -d' ' -f1 > "$LIB/node_modules/.lemo-ok"; fi
 }
 ready() { [ -f "$LIB/node_modules/.lemo-ok" ] && ls "$LIB"/.venv/.lemo-core >/dev/null 2>&1; }
+# GitHub release downloads can crawl at ~60 KB/s per connection (measured from Vietnam) while many connections in
+# parallel add up. So each pack is fetched as PARALLEL byte ranges into the file fetch.sh resumes from
+# (.release/<file>.download); fetch.sh then finds it complete, checks its sha256 and unpacks it.
+prefetch() {   # prefetch <pack name in tools/assets.json>
+  info=$(node -e "const m=require(process.argv[1]),p=m.packs[process.argv[2]];if(p)console.log(m.repo,m.tag,p.file,p.size)" "$LIB/tools/assets.json" "$1")
+  [ -n "$info" ] || return 0
+  set -- $info
+  url=https://github.com/$1/releases/download/$2/$3 dst="$LIB/.release/$3.download" size=$4
+  mkdir -p "$LIB/.release"
+  have=$(wc -c 2>/dev/null < "$dst" || echo 0); have=$((have))
+  [ "$have" -gt "$size" ] && { rm -f "$dst"; have=0; }
+  [ "$have" -eq "$size" ] && return 0
+  n=${PARALLEL:-24}; chunk=$(( (size - have + n - 1) / n )); parts=$(mktemp -d)
+  echo "↓ $3 ($((size / 1000000)) MB, $n connections$( [ "$have" -gt 0 ] && echo ", resuming at $((have / 1000000)) MB"))"
+  for try in 1 2 3; do
+    i=0
+    while [ $i -lt $n ]; do
+      s=$((have + i * chunk)) e=$((have + (i + 1) * chunk - 1)); [ $e -ge "$size" ] && e=$((size - 1))
+      want=$((e - s + 1)); got=$(wc -c 2>/dev/null < "$parts/$i" || echo 0); got=$((got))
+      [ $s -le $e ] && [ "$got" -lt "$want" ] && curl -sL --fail --connect-timeout 20 -r $((s + got))-$e "$url" >> "$parts/$i" &
+      i=$((i + 1))
+    done
+    wait
+    ok=1 i=0
+    while [ $i -lt $n ]; do
+      s=$((have + i * chunk)) e=$((have + (i + 1) * chunk - 1)); [ $e -ge "$size" ] && e=$((size - 1))
+      [ $s -le $e ] && [ "$(wc -c 2>/dev/null < "$parts/$i" || echo 0)" -ne $((e - s + 1)) ] && ok=
+      i=$((i + 1))
+    done
+    [ -n "$ok" ] && break
+    echo "  some parts are short; retrying them ($try/3)"
+  done
+  [ -n "$ok" ] || { rm -rf "$parts"; echo "✗ $3: download incomplete; run the same command again"; exit 1; }
+  i=0; while [ $i -lt $n ]; do [ -f "$parts/$i" ] && cat "$parts/$i" >> "$dst"; i=$((i + 1)); done
+  rm -rf "$parts"
+}
 fetch() {
   for p in "$@"; do
     case $p in
-      hdri) [ -d "$LIB/core/assets/polyhaven" ] && [ -n "$(ls -A "$LIB/core/assets/polyhaven" 2>/dev/null)" ] || (cd "$LIB" && sh tools/fetch.sh hdri) ;;
-      vcsl|vsco2ce|freepats|karoryfer|salamander|all) (cd "$LIB" && sh tools/fetch.sh instruments "$p") ;;
+      hdri) ls "$LIB"/core/assets/polyhaven/*.hdr >/dev/null 2>&1 && ! ls "$LIB"/.release/hdri.* >/dev/null 2>&1 && { echo "✓ hdri (already here)"; continue; }
+        prefetch hdri; (cd "$LIB" && sh tools/fetch.sh hdri) ;;
+      vcsl|vsco2ce|freepats|karoryfer|salamander)
+        # done = unpacked, and no half-finished download left (fetch.sh deletes it after unpacking)
+        [ -n "$(ls -A "$LIB/core/audio/instruments/$p" 2>/dev/null)" ] && ! ls "$LIB/.release/instruments-$p".* >/dev/null 2>&1 && { echo "✓ $p (already here)"; continue; }
+        prefetch "instruments-$p"; (cd "$LIB" && sh tools/fetch.sh instruments "$p") ;;
+      all) fetch vcsl vsco2ce freepats karoryfer salamander ;;
       *) echo "✗ unknown pack: $p (hdri, vcsl, vsco2ce, freepats, karoryfer, salamander, all)"; exit 1 ;;
     esac
   done
