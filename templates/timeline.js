@@ -1,6 +1,9 @@
 // The single source of timing. BPM grid; narration lines start on it (VO); picture beats (T) sit on it.
 // Word-level cues come from out/cues.json (scripts/voice.mjs). Never put absolute seconds in the picture code:
 // use q(bar, beat), T.*, or the cues.
+// Frame size from the brief (references/formats.md): '1920x1080' 16:9, '1080x1920' 9:16, '1080x1350' 4:5, '1080x1080' 1:1.
+// build.sh passes it to every render tool as --size; the page lays out from innerWidth × innerHeight, never fixed numbers.
+export const SIZE = '1920x1080', FPS = 24;
 export const BPM = 100, BEAT = 60 / BPM, BAR = BEAT * 4;
 export const q = (bar, beat = 0) => +(bar * BAR + beat * BEAT).toFixed(4);
 

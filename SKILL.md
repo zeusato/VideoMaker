@@ -17,13 +17,21 @@ Bộ skill này là lớp quy trình đặt trên thư viện **lemo-opuscar** (
 4. **Số liệu phải có nguồn hoặc công thức** trong `FACTS.md`. Ví dụ minh hoạ phải nói rõ là minh hoạ trên màn hình.
 5. **Một vòng sửa** sau review, rồi giao. Ghi chú của người dùng sau khi giao là vòng mới.
 
-## Chuẩn bị một lần trên mỗi máy
+## Chuẩn bị máy (tự động, mỗi lần nhận yêu cầu)
 
-Đọc `references/setup.md`: cài Node 20+, Python 3.11+, ffmpeg 7+, clone lemo-opuscar, cài core tier, sample library, HDRI, và **các vá cho Windows**. Biến dùng trong mọi lệnh:
+Chi tiết: `references/setup.md`. Chạy từ workspace (thư mục Claude Code đang mở):
+
+1. `sh "$SKILL/scripts/setup.sh"`: kiểm tra Git, Node 20+, Python 3.11+ và ffmpeg 7+; tải hoặc cập nhật lemo-opuscar vào `vendor/lemo-opuscar`; tạo `films/`. Dòng cuối in `LIB=` và `SKILL=`.
+   - Thiếu công cụ hệ thống thì lệnh in ra lệnh `winget` tương ứng. **Hỏi người dùng trong lượt hỏi brief**, cài khi họ đồng ý, rồi chạy lại trong shell mới.
+2. `sh "$SKILL/scripts/setup.sh" deps`: chạy **nền** ngay, trong lúc hỏi brief. Lệnh cài npm, Chrome headless shell và Python `.venv` (khoảng 350 MB, vài phút), kèm vá cho Windows.
+3. Sau khi chọn style: `setup.sh assets hdri` nếu style là 3D, và `setup.sh assets <gói nhạc cụ>` theo những gì `STYLE.md` và cue map cần.
+
+Biến dùng trong mọi lệnh:
 
 - `LIB`: thư mục lemo-opuscar (mặc định `<workspace>/vendor/lemo-opuscar`).
 - `SKILL`: thư mục skill này.
 - Dự án phim: `<workspace>/films/<tên>/`, nằm **ngoài** `LIB`.
+- Key ElevenLabs: `<workspace>/.env`. Không đọc, không in nội dung.
 
 ## Quy trình
 
@@ -35,16 +43,32 @@ Bộ skill này là lớp quy trình đặt trên thư viện **lemo-opuscar** (
 
 Hỏi gộp trong **một** tin nhắn, rồi không hỏi thêm (DIRECTOR §1). Chỉ hỏi những gì yêu cầu chưa trả lời:
 
-- Chủ đề, thông điệp chính, đối tượng xem, nơi đăng (quyết định khổ 16:9 hay 9:16).
+- Chủ đề, thông điệp chính, đối tượng xem.
+- **Nơi đăng và khổ hình.** Hỏi video đăng ở đâu, rồi đề xuất khổ: YouTube/web là 16:9 `1920x1080`; TikTok/Shorts/Reels là 9:16 `1080x1920`; feed Facebook/Instagram là 4:5 `1080x1350`; vuông là `1080x1080`; màn hình sự kiện thì hỏi số pixel. Nhiều nơi đăng thì hỏi: một khổ chính hay nhiều phiên bản (mỗi phiên bản thêm một lần dựng bố cục và một lần render). Chi tiết: `references/formats.md`.
 - Độ dài. Mặc định 30–60 giây; nói trước rằng style có chữ cần giữ đủ lâu nên thường dài hơn ước lượng 20–40%.
 - Số liệu thật và nguồn, hoặc đồng ý dùng ví dụ minh hoạ.
-- Style: người dùng chọn, hoặc để mình chọn (gợi ý 2–3 kèm lý do).
+- **Style:** gửi kèm trang chọn style có 2–3 gợi ý (bước 2). Người dùng chọn trên trang, hoặc để mình chọn.
+- Máy có GPU rời không (style 3D cần GPU), nếu chưa rõ.
 - Giọng: voice ID ElevenLabs, và **gói của tài khoản** (Free hay trả phí). Câu này quyết định cách làm giọng (bước 5).
 - Có muốn duyệt storyboard trước không (mặc định: không).
+- Công cụ hệ thống còn thiếu (nếu `setup.sh` báo): xin phép cài.
+
+Ghi khổ đã chốt vào `SIZE` (và `FPS`) trong `timeline.js`. Từ đó mọi lệnh render đều theo khổ này.
 
 ### 2. Chọn style
 
-Tra `$LIB/styles/README.md`. Chọn theo **ẩn dụ của chủ đề**, không theo thói quen. Ví dụ: tiền tích luỹ là vật đếm được nên hợp **Data Physicalization**. Đọc kỹ `$LIB/styles/<slug>/STYLE.md`: đó là luật cố định của style, giữ nguyên toàn bộ.
+Chọn theo **ẩn dụ của chủ đề**, không theo thói quen. Ví dụ: tiền tích luỹ là vật đếm được nên hợp **Data Physicalization**. Lọc thêm theo GPU, tư liệu thật và khổ hình (`references/styles.md`).
+
+Người dùng không thể chọn từ một danh sách 66 cái tên. Vì vậy, trước khi gửi lượt hỏi brief, dựng **trang chọn style** có danh sách gợi ý ở trên cùng, rồi mở cho người dùng xem (browser pane, hoặc đưa đường dẫn file):
+
+```sh
+node "$SKILL/scripts/styles.mjs" --lib "$LIB" --out films/chon-style.html --topic "<chủ đề>" --size "<khổ>" \
+  --pick "<slug>=<lý do gắn với chủ đề>|<slug>=<lý do>|<slug>=<lý do>"
+```
+
+Trang có ảnh khung và phim mẫu của cả 66 style, mô tả tiếng Việt, nhãn 2D/3D và "cần tư liệu thật", bộ lọc, và nút chép `Chọn style: <slug>` để dán vào chat. Người dùng đã nêu tên style thì bỏ qua bước này.
+
+Khi đã chọn: đọc kỹ `$LIB/styles/<slug>/STYLE.md`, vì đó là luật cố định của style và phải giữ nguyên toàn bộ. Sau đó tải tài nguyên style cần (`setup.sh assets …`).
 
 ### 3. Treatment
 
@@ -72,8 +96,9 @@ Chi tiết tiếng Việt: `references/vietnamese.md`.
 
 ### 6. Hình
 
-- Theo `STYLE.md`. Sau khi có treatment thì học kỹ thuật từ demo (`$LIB/styles/<slug>/demo/`): set, rig, shader, reading kit, mix. Không lấy câu chuyện, shot hay timeline của demo.
+- Theo `STYLE.md`. Sau khi có treatment thì tải mã nguồn demo (`sh "$SKILL/scripts/setup.sh" demo <slug>`, ra `$LIB/styles/<slug>/demo/`) và học kỹ thuật từ đó: set, rig, shader, reading kit, mix. Không lấy câu chuyện, shot hay timeline của demo.
 - Trang phim đọc `out/cues.json` và `timeline.js`. Mọi mốc lấy từ cue, từ `T` trên lưới, hoặc từ hàm thời gian.
+- Bố cục tính từ `innerWidth` × `innerHeight`, không gõ cứng kích thước. Khổ dọc thì dựng lại bố cục, không thu nhỏ bản ngang. Giữ chữ và phụ đề trong vùng an toàn của khổ (`references/formats.md`). Ảnh thử render với `--size <SIZE>`.
 - Render style frame trước (`still.mjs`), ghép contact sheet, tự soát theo STYLE.md và `references/lessons.md`.
 - Có chế độ nháp (`?q=draft`) cho các vòng review (`references/setup.md`, phần tốc độ).
 
@@ -88,7 +113,7 @@ Chi tiết tiếng Việt: `references/vietnamese.md`.
 
 ### 8. Build
 
-`templates/build.sh` là một lệnh chạy trọn: lịch, giọng, font, sự kiện, hình, mix, master, phụ đề, kiểm tra thời gian đọc, poster. `SKIP_VIDEO=1` để chỉ làm lại phần tiếng. Chỉ render final **một lần**, ở cuối.
+`templates/build.sh` là một lệnh chạy trọn: lịch, giọng, font, sự kiện, hình, mix, master, phụ đề, kiểm tra thời gian đọc, poster. Khổ hình lấy từ `SIZE` trong `timeline.js`. `SKIP_VIDEO=1` để chỉ làm lại phần tiếng; `SIZE=1080x1920` để làm thêm một phiên bản khổ khác. Chỉ render final **một lần**, ở cuối.
 
 ### 9. Review và một vòng sửa
 

@@ -1,13 +1,13 @@
 # Dùng lemo-opuscar trong skill này
 
-lemo-opuscar (github.com/lemomo-ai/lemo-opuscar, MIT; phim demo CC BY 4.0) là **engine và bộ nghề** của quy trình. Skill này không sao chép nó: clone về `<workspace>/vendor/lemo-opuscar` và tham chiếu tới đó bằng biến `LIB`.
+lemo-opuscar (github.com/lemomo-ai/lemo-opuscar, MIT; phim demo CC BY 4.0) là **engine và bộ nghề** của quy trình. Skill này không sao chép nó: `scripts/setup.sh` clone về `<workspace>/vendor/lemo-opuscar` (sparse) và mọi lệnh tham chiếu tới đó bằng biến `LIB` (`references/setup.md`).
 
 ## Đọc gì, khi nào
 
 | Lúc | Đọc |
 |---|---|
 | Trước mọi thứ | `$LIB/AGENTS.md`, `$LIB/DIRECTOR.md`, `$LIB/TECHNIQUE.md` |
-| Chọn style | `$LIB/styles/README.md`, rồi `$LIB/styles/<slug>/STYLE.md` |
+| Chọn style | `references/styles.md` (trang chọn style cho người dùng), rồi `$LIB/styles/<slug>/STYLE.md` |
 | Sau khi đã có TREATMENT.md | `$LIB/styles/<slug>/DEMO.md` và `demo/` (chỉ để học kỹ thuật) |
 | Tra lệnh | `$LIB/core/README.md` |
 | Viết nhạc | `$LIB/core/audio/INSTRUMENTS.md` (tên nhạc cụ, quãng, giấy phép) |

@@ -32,7 +32,7 @@
 
 ## Phụ đề
 
-- Một dòng, đo bằng font thật. Rộng hơn vùng an toàn (khoảng 1.180px ở 36px) thì **tách thành hai cue tại dấu câu**, không xuống dòng.
+- Một dòng, đo bằng font thật. Rộng hơn vùng an toàn thì **tách thành hai cue tại dấu câu**, không xuống dòng. Vùng an toàn và cỡ chữ theo từng khổ: `references/formats.md` (16:9 khoảng 1.180px ở 36px; 9:16 khoảng 860px ở 48–56px).
 - Giữ ít nhất max(1,8 giây; thời lượng đọc + 0,6 giây), và không đè lên cue tiếp theo.
 - Phụ đề in trong hình. File `.srt` xuất riêng vào `captions/`.
 - Thời gian đọc nhãn (readcheck, chữ Latin): số ký tự ÷ 15 + 1,5 giây.

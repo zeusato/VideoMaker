@@ -19,7 +19,14 @@ Skill là lớp quy trình đặt trên thư viện style [lemo-opuscar](https:/
 git clone https://github.com/zeusato/VideoMaker.git ~/.claude/skills/video-ai
 ```
 
-Sau đó làm theo [references/setup.md](references/setup.md): cài Node, Python, ffmpeg 7+, clone lemo-opuscar vào `<workspace>/vendor/lemo-opuscar`, cài core tier, sample library, HDRI.
+Sau đó, trong workspace, nói với Claude Code "chuẩn bị máy để làm video", hoặc tự chạy:
+
+```sh
+sh ~/.claude/skills/video-ai/scripts/setup.sh          # kiểm tra Git, Node 20+, Python 3.11+, ffmpeg 7+; tải lemo-opuscar
+sh ~/.claude/skills/video-ai/scripts/setup.sh deps     # gói của engine, khoảng 350 MB
+```
+
+Thư viện nằm ở `<workspace>/vendor/lemo-opuscar`, phim ở `<workspace>/films/<tên>/`. HDRI và mẫu nhạc cụ tải theo style (`setup.sh assets …`). Chi tiết: [references/setup.md](references/setup.md).
 
 Key ElevenLabs đặt trong biến `ELEVENLABS_API_KEY`, hoặc file `.env` ở thư mục dự án hay thư mục cha. Key cần quyền `text_to_speech` và `forced_alignment`. **Không commit file `.env`.**
 
@@ -31,8 +38,8 @@ Trong Claude Code, ở thư mục làm việc (workspace):
 
 Agent đi theo [SKILL.md](SKILL.md):
 
-1. Brief.
-2. Chọn style.
+1. Brief: một lượt hỏi, gồm nơi đăng và khổ hình (16:9, 9:16, 4:5, 1:1).
+2. Chọn style trên trang trực quan: phim mẫu của 66 style, mô tả tiếng Việt, 2–3 gợi ý cho chủ đề.
 3. Viết treatment.
 4. Kịch bản có cue.
 5. Làm giọng.
@@ -46,8 +53,9 @@ Agent đi theo [SKILL.md](SKILL.md):
 
 ```
 SKILL.md                quy trình chính
-references/             lemo-opuscar, giọng, tiếng Việt, cài đặt và tốc độ, review, chia việc, bài học
-scripts/                normalize.mjs, lexicon.json, narration.mjs, voice.mjs, eleven.mjs, fonts.mjs, export.mjs
+references/             cài đặt, lemo-opuscar, chọn style, khổ hình, giọng, tiếng Việt, review, chia việc, bài học
+scripts/                setup.sh, env.sh, styles.mjs (trang chọn style), normalize.mjs, lexicon.json,
+                        narration.mjs, voice.mjs, eleven.mjs, fonts.mjs, export.mjs
 templates/              script.json, timeline.js, voice-brief.md, build.sh, TREATMENT.md, FACTS.md
 examples/lai-kep/       phim mẫu (mã nguồn, không có audio/video): Data Physicalization, 43 giây
 ROADMAP.md              việc cần làm trước khi dùng thật

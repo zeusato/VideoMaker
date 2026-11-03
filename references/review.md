@@ -8,6 +8,8 @@ Chạy từ thư mục dự án; `FF` là ffmpeg 7+.
 "$FF" -v error -y -i <tên>.mp4 -vf "fps=1/1.8,scale=480:-1,tile=4x6" -frames:v 1 review/sheet_full.jpg
 ```
 
+Khổ dọc thì dùng `scale=-1:480` và `tile=6x3` (`references/formats.md`).
+
 Đọc ảnh và soát:
 
 - Mạch truyện đúng beat sheet.
@@ -15,6 +17,7 @@ Chạy từ thư mục dự án; `FF` là ffmpeg 7+.
 - Hai vật so sánh nằm trọn khung.
 - Nhãn và bảng không đè lên nhau, không đè lên phụ đề.
 - Chữ đủ to cho màn hình điện thoại.
+- Không có chữ hay vật thể chính trong vùng bị giao diện app che (khổ 9:16).
 - Vật thể chính chiếm ít nhất 1/3 chiều cao khung ở các khoảnh khắc quan trọng.
 
 ## 2. Tìm cú máy quá gấp hoặc khung bị nhảy
@@ -37,7 +40,7 @@ ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt,r_frame_rate,n
 ## 4. Chữ và phụ đề
 
 - `node $LIB/core/render/readcheck.mjs films/<tên>`: mọi chữ phải giữ đủ lâu. Lỗi nào báo `BAD` thì kéo dài hoặc cho hiện sớm hơn.
-- Cắt dải phụ đề ở các điểm chuyển câu (`-ss t -vf crop=1400:180:0:900`), xác nhận mỗi lúc chỉ có một dòng.
+- Cắt dải phụ đề ở các điểm chuyển câu (16:9: `-ss t -vf crop=1400:180:0:900`; 9:16: `crop=1080:220:0:1260`), xác nhận mỗi lúc chỉ có một dòng.
 - `.srt` phải nằm ở `captions/`.
 
 ## 5. Giọng

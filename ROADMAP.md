@@ -12,9 +12,12 @@ Trạng thái: **v0.1**, đã chạy trọn một phim ("Lãi kép", Data Physic
 - [ ] **Nghe kiểm âm thanh** của `examples/lai-kep` với loa thật. Agent không tự nghe được: cần người dùng chấm nhạc, foley, mức giọng, rồi rút thành luật mix.
 - [ ] **Gói ElevenLabs:** quyết định Free (tạo tiếng trên web, phải làm tay mỗi video) hay Starter (API tự động hoàn toàn). Nếu Starter thì chạy thử `provider: "elevenlabs-api"` trong `voice.mjs`; nhánh này đã viết nhưng **chưa chạy thật**.
 - [ ] **Phim thứ hai bằng một style khác** (2D, nhiều cảnh, ví dụ Data Storytelling hoặc Broadcast News Package) để kiểm các phần chưa đụng tới: kit dùng chung, chia việc cho worker, chuyển cảnh bằng chất liệu của style.
-- [ ] **Khổ dọc 9:16** cho short/reel: `--size 1080x1920`, bố cục, vùng an toàn của phụ đề.
+- [ ] **Khổ dọc 9:16** cho short/reel: brief, `SIZE` trong `timeline.js`, `build.sh` và vùng an toàn đã viết (`references/formats.md`), nhưng **chưa dựng phim dọc nào**. Cần một phim dọc để kiểm số liệu vùng an toàn và cỡ phụ đề trên điện thoại thật.
 
 ## Nên làm
+
+- [ ] Trang chọn style: người dùng thật thử chọn một lần; thêm lọc "hợp khổ dọc" khi đã biết style nào dựng dọc tốt.
+- [ ] `setup.sh` trên máy sạch hoàn toàn (chưa có Node, Python, ffmpeg): kiểm lại thông báo và lệnh `winget`.
 
 - [ ] `mix.py` dùng chung: tách phần chung (bus, duck, suck-out, master, đo mức) ra khỏi phần riêng của từng style (foley, nhạc).
 - [ ] Chuẩn hoá thêm: dấu `+`/`−` trước số, đơn vị viết tắt, số La Mã. Kiểm thẻ cảm xúc của Eleven v3 với tiếng Việt.
@@ -29,4 +32,6 @@ Trạng thái: **v0.1**, đã chạy trọn một phim ("Lãi kép", Data Physic
 - Chuẩn hoá số tiếng Việt, mã cổ phiếu, ngày tháng, phần trăm.
 - ElevenLabs: tạo tiếng trên web, căn thời gian bằng forced alignment API (gói Free), cắt từng câu, đặt lên lưới nhạc, báo chồng câu. `scripts/voice.mjs` cho ra đúng các cue của bản sản xuất (lệch 0,000 s).
 - lemo-opuscar trên Windows với các vá trong `references/setup.md`.
+- `scripts/setup.sh` (kiểm tra, sparse clone, `deps` với shim `.venv` trên Windows) chạy trọn trên một workspace mới.
+- `scripts/styles.mjs`: trang chọn style dựng từ 66 `style.json`, ảnh và phim mẫu phát được từ gallery của thư viện.
 - Review: contact sheet, scene-score, readcheck, ebur128, blackdetect.
