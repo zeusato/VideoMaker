@@ -118,7 +118,9 @@ lines.forEach((l, i) => {
     const wi = sp.findIndex((w) => w.to > c.at);
     out.cues[c.name] = at(ws[wi < 0 ? ws.length - 1 : wi].start);
   }
-  out.lines.push({ id: VO[i].id, start: +t0.toFixed(3), dur: +(cut1 - cut0).toFixed(3), t0: at(ws[0].start), t1: at(ws.at(-1).end), text: l.text, wav });
+  // sentence ends (s): lets a long line's subtitle be split at sentence boundaries, timed to the voice
+  const ends = sp.map((w, k) => (/[.?!…]["”»)]*$/.test(w.text) ? at(ws[k].end) : null)).filter((x) => x !== null);
+  out.lines.push({ id: VO[i].id, start: +t0.toFixed(3), dur: +(cut1 - cut0).toFixed(3), t0: at(ws[0].start), t1: at(ws.at(-1).end), ends, text: l.text, wav });
 });
 
 // lines must not overlap, and need a breath between them
