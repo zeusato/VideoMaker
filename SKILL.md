@@ -93,6 +93,7 @@ Chi tiết tiếng Việt: `references/vietnamese.md`.
 - **ElevenLabs gói Free:** giọng trong Voice Library **không gọi được qua API** (lỗi 402). Gửi người dùng `voice-brief.md` cùng `narration.txt`; họ tạo trên web và lưu `audio/full.mp3`. API forced alignment thì gói Free dùng được, nhưng phải bật quyền `forced_alignment` cho key.
 - Sau đó `node $SKILL/scripts/voice.mjs films/<tên>`: căn từng từ, cắt từng câu, đặt mỗi câu lên lưới nhạc (`VO` trong `timeline.js`), xuất `out/cues.json`. Lệnh **báo lỗi nếu hai câu chồng nhau**; khi đó dời câu sau đi một phách.
 - Trong lúc chờ giọng: `voice.mjs --estimate` ước lượng độ dài để dựng hình trước.
+- **Không có ElevenLabs (hết credit, gói Free):** OmniVoice nhân bản giọng, chạy trên GPU NVIDIA ở máy hoặc trên GPU Kaggle miễn phí. Đọc từng câu với `duration` cố định, giọng mẫu phải có lời khớp từng chữ. Xem `references/voice.md`, mục OmniVoice. Chỉ dùng khi luật giọng của dự án cho phép nhân bản giọng.
 
 ### 6. Hình
 

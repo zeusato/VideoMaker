@@ -52,3 +52,19 @@ Hình, nhạc và phụ đề đều đọc `out/cues.json`. Đổi giọng hay 
 ## Trộn giọng
 
 Lọc thông cao 90 Hz → nén (thr .22, ratio 3.2) → cao hơn nhạc khoảng 10 dB theo RMS lúc đang nói → nhạc tự hạ (duck) khoảng 4 dB khi có giọng. Mẫu ở `examples/lai-kep/mix.py`.
+
+## Bỏ một câu đã thu
+
+Thêm `~` ở đầu dòng đó trong `script.json`. `voice.mjs` vẫn căn câu đó theo bản thu, nên dùng lại được cache forced alignment, không tốn credit. Câu đó không có chỗ trong `VO`, không có WAV, không có cue. Các công cụ của từng phim đánh số câu theo `script.json` (ví dụ `tools/captions-final.mjs` của ct04) phải tra theo id `lN`, không tra theo thứ tự.
+
+## OmniVoice: nhân bản giọng không cần ElevenLabs
+
+Đã chạy thật ngày 07/11/2026 (Cơ thể bạn 10). Công cụ mẫu và hướng dẫn đầy đủ nằm trong dự án Video-Studio: `films/Co the ban/Code/tools/voicestudio/` và `docs/voicestudio-omnivoice.md`. Model `k2-fsa/OmniVoice` (`pip install omnivoice`) không cần token Hugging Face. VoiceStudio ghi giấy phép của model là `commercial_inference: restricted`, nên phải đọc giấy phép trước khi bật kiếm tiền. Nhân bản giọng của người khác hay giọng trong Voice Library còn phụ thuộc điều khoản ElevenLabs và luật của dự án.
+
+- **Một câu một lượt, `duration` cố định.** Nếu đưa cả đoạn vào một lượt, các dòng dính vào nhau, có chữ bị đọc thừa hoặc lặp, nhịp trôi. Độ dài mỗi câu tính bằng số âm tiết ÷ 4,6 cộng 0,37 s cho mỗi dấu phẩy hoặc hai chấm (nhịp ElevenLabs v3 của kênh). Khoảng nghỉ giữa các câu do code đặt.
+- **Lời mẫu (`ref_text`) phải khớp đoạn mẫu từng chữ.** Lệch chữ nào thì model đọc chen chữ đó vào câu mới. Câu ngắn bị nặng nhất: nghe như có hai lời chồng lên nhau. Cắt đoạn mẫu 9–14 s theo mốc Whisper đo lại trên chính file, không dùng mốc của bản căn cũ.
+- **Thư viện gốc nhận danh sách câu trong một lượt** (`generate(text=[...], duration=[...], voice_clone_prompt=...)`). Đó là cách chạy theo lô mà vẫn tách riêng từng câu. Giọng mẫu chỉ mã hoá một lần bằng `create_voice_clone_prompt`.
+- **Tốc độ:** trên GTX 1650 4 GB (qua API VoiceStudio) mỗi câu mất khoảng 20 s với mẫu 9 s và 8 bước, 57 s với mẫu 14 s và 16 bước. Thời gian gần như không phụ thuộc độ dài câu. Trên Kaggle T4, 32 bước, lô 8 câu: 19 câu trong 46 s.
+- **Gọi API VoiceStudio từ Python, không gọi `curl` trong Git Bash.** Git Bash làm hỏng dấu tiếng Việt, model nhận chữ méo và đọc ra tiếng vô nghĩa.
+- **Soát bằng Whisper không gợi ý trước chữ nào.** Bỏ số ở cả hai phía khi so: Whisper ghi "22" còn kịch bản ghi "hai mươi hai". Trên Kaggle, faster-whisper phải chạy CPU, vì ctranslate2 cần CUDA 12 còn PyTorch đã lên CUDA 13. Âm thanh đưa vào dạng mảng đã đọc sẵn, vì bản `av` có sẵn quá cũ.
+- OmniVoice không trả mốc từng từ. Mốc trong câu được rải theo số ký tự, đủ dùng cho cue, không đủ cho karaoke.

@@ -42,9 +42,12 @@ function parseLine(raw) {
 }
 const spans = (s) => [...s.matchAll(/\S+/g)].map((m) => ({ from: m.index, to: m.index + m[0].length, text: m[0] })).filter((w) => letters(w.text));
 
-const lines = script.scenes.flatMap((s) => s.lines).map(parseLine);
-if (lines.length !== VO.length) throw new Error(`script has ${lines.length} lines, timeline VO has ${VO.length}`);
-const fullText = lines.map((l) => l.spoken).join('\n\n');
+// a line starting with "~" was recorded but is cut from the film: it is still aligned (the recording has it),
+// but gets no VO slot, no WAV and no cues, so a recording can lose a line without paying for a new alignment
+const all = script.scenes.flatMap((s) => s.lines).map((raw) => ({ ...parseLine(raw.replace(/^~/, '')), cut: raw.startsWith('~') }));
+const lines = all.filter((l) => !l.cut);
+if (lines.length !== VO.length) throw new Error(`script has ${lines.length} lines (not counting ~cut ones), timeline VO has ${VO.length}`);
+const fullText = all.map((l) => l.spoken).join('\n\n');
 const cacheDir = path.join(dir, 'voice');
 mkdirSync(cacheDir, { recursive: true });
 const cached = async (parts, make) => {
@@ -72,7 +75,7 @@ const estimate = process.argv.includes('--estimate') || !existsSync(audio);
 let words;
 if (estimate) {
   // ElevenLabs v3 reads Vietnamese at ~3.4 syllables per second, with a pause after each sentence
-  words = lines.map((l) => {
+  words = all.map((l) => {
     let t = 0;
     return spans(l.spoken).map((w) => { const s = { start: t, end: t + .22 }; t += 1 / 3.4 + (/[.,:]$/.test(w.text) ? .25 : 0); return s; });
   });
@@ -80,7 +83,7 @@ if (estimate) {
   // character-level alignment of exactly the text sent: word times by character offset
   const a = tts.alignment;
   let off = 0;
-  words = lines.map((l, i) => {
+  words = all.map((l, i) => {
     if (i) off += 2;                      // the "\n\n" between lines
     const ws = spans(l.spoken).map((w) => ({ start: a.character_start_times_seconds[off + w.from], end: a.character_end_times_seconds[off + w.to - 1] }));
     off += l.spoken.length; return ws;
@@ -95,11 +98,12 @@ if (estimate) {
     return apiForm('/v1/forced-alignment', form);
   });
   const aligned = res.words.filter((w) => letters(w.text));
-  const expected = lines.reduce((n, l) => n + spans(l.spoken).length, 0);
+  const expected = all.reduce((n, l) => n + spans(l.spoken).length, 0);
   if (aligned.length !== expected) throw new Error(`aligner found ${aligned.length} words, the script has ${expected}: the recording does not match narration.txt`);
   let k = 0;
-  words = lines.map((l) => spans(l.spoken).map(() => aligned[k++]));
+  words = all.map((l) => spans(l.spoken).map(() => aligned[k++]));
 }
+words = words.filter((_, i) => !all[i].cut);
 
 const out = { estimated: estimate, lines: [], cues: {} };
 mkdirSync(path.join(dir, 'voice', 'out'), { recursive: true });
