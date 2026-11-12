@@ -114,7 +114,7 @@ Chi tiết tiếng Việt: `references/vietnamese.md`.
 
 ### 8. Build
 
-`templates/build.sh` là một lệnh chạy trọn: lịch, giọng, font, sự kiện, hình, mix, master, phụ đề, kiểm tra thời gian đọc, poster. Khổ hình lấy từ `SIZE` trong `timeline.js`. `SKIP_VIDEO=1` để chỉ làm lại phần tiếng; `SIZE=1080x1920` để làm thêm một phiên bản khổ khác. Chỉ render final **một lần**, ở cuối.
+`templates/build.sh` là một lệnh chạy trọn: lịch, giọng, font, sự kiện, hình, mix, master, phụ đề, kiểm tra thời gian đọc, poster. Khổ hình lấy từ `SIZE` trong `timeline.js`. `SKIP_VIDEO=1` để chỉ làm lại phần tiếng; `SIZE=1080x1920` để làm thêm một phiên bản khổ khác. Chỉ render final **một lần**, ở cuối. Phim dài hoặc cảnh nặng: đọc mục "Render khung hình" trong `references/lessons.md` trước (lấy khung bằng đọc canvas, số luồng theo bộ nhớ cam kết, render theo khúc có thử lại, soát mọi mối nối).
 
 ### 9. Review và một vòng sửa
 
